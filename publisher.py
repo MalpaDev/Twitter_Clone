@@ -4,11 +4,15 @@ notes go hear
 """
 import tkinter as tk
 from tkinter import messagebox
+from mqtt_handler import MQTTHandler
 
 class Publisher:
     def __init__(self, root):
         self.root = root
         root.title("MQTT Twitter - Publisher")
+
+        self.mqtt = MQTTHandler()
+        self.mqtt.connect()
 
         tk.Label(root, text = "Username:").grid(row = 0, column = 0, sticky = "e", padx = 5, pady = 5)
         self.username_entry = tk.Entry(root, width = 30)
@@ -25,21 +29,30 @@ class Publisher:
         publish_button = tk.Button(root, text = "Publish Tweet", command = self.publish_tweet)
         publish_button.grid(row = 3, column = 1, pady = 10)
 
+        # ensures clean disconnect
+        root.protocol("WM_DELETE_WINDOW", self.on_close)
+
     def publish_tweet(self):
         username = self.username_entry.get().strip()
         tweet = self.tweet_entry.get("1.0", tk.END).strip()
-        hashtag = self.hashtag_entry.get().strip()
+        topic = self.hashtag_entry.get().strip()
 
-        if not username or not tweet or not hashtag:
+        if not username or not tweet or not topic:
             messagebox.showwarning("Missing Info", "Please fill out all fields.")
             return
         
-        # print to console
-        print(f"Published: @{username} - \"{tweet}\" to topic #{hashtag}")
-        messagebox.showinfo("Tweet Published", f"Tweet sent to #{hashtag}")
-        self.tweet_entry.delete("1.0", tk.END)
+        message = f"{username}: {tweet}"
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = Publisher(root)
-    root.mainloop()
+        try:
+            self.mqtt.publish(topic, message)
+            print(f"Published: @{username} -> topic: {topic}")
+            messagebox.showinfo("Tweet published", f"Tweet sent to {topic}")
+            # Get rid of text in textbox
+            self.tweet_entry.delete("1.0", tk.END)
+        except Exception as e:
+            print(f"Error publishing: {e}")
+            messagebox.showerror("Error", f"Failed to publish tweet.\n{e}")
+
+    def on_close(self):
+        self.mqtt.disconnect()
+        self.root.destroy()

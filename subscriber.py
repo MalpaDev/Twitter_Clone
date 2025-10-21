@@ -1,19 +1,24 @@
 """
 subscriber.py
-notes go hear
+Connects to MQTT broker running on localhost and listens
+for messages published to specific topics. Incoming tweets
+are displayed in real time on a tkinter GUI.
 """
 import tkinter as tk
 from tkinter import messagebox
 from mqtt_handler import MQTTHandler
 
 class Subscriber:
+    # Initalizes the GUI and connects to MQTT broker
     def __init__(self, root):
         self.root = root
         root.title("MQTT Twitter - Subscriber")
 
+        # MQTT connection and registers on_message callback
         self.mqtt = MQTTHandler()
         self.mqtt.connect(on_message = self.on_message)
 
+        # GUI
         tk.Label(root, text = "Hashtag:").grid(row = 0, column = 0, sticky = "e", padx = 5, pady = 5)
         self.hashtag_entry = tk.Entry(root, width = 30)
         self.hashtag_entry.grid(row = 0, column = 1, padx = 5, pady = 5)
@@ -27,6 +32,7 @@ class Subscriber:
         self.feed_box = tk.Text(root, width = 50, height = 10, state = "disabled")
         self.feed_box.grid(row = 2, column = 1, padx = 5, pady = 5)
 
+        # tracks active subscriptions
         self.subscribed_topics = set()
 
         # ensures clean disconnect
@@ -66,8 +72,8 @@ class Subscriber:
         self.subscribed_topics.remove(topic)
         self.display_message(f"Unsubscribed from {topic}\n")
 
+    # Adds new messages to the text field
     def display_message(self, msg):
-        # update the feed with new messages
         self.feed_box.config(state = "normal")
         self.feed_box.insert(tk.END, msg)
         self.feed_box.config(state = "disabled")

@@ -1,17 +1,20 @@
 """
 mqtt_handler.py
-notes here
+Handles MQTT connection handling, publishing, subscribing and disconnecting.
+
+Using paho 1.6.1 and running a Mosquito server on my local host / computer.
 """
 
 import paho.mqtt.client as mqtt
 
 class MQTTHandler:
+    # initializes MQTT handler with broker and port settings
     def __init__(self, broker="localhost", port=1883):
         self.client = mqtt.Client()
         self.broker = broker
         self.port = port
 
-
+    # connects to localhost MQTT broker and starts the network loop
     def connect(self, on_message = None, on_connect = None):
         if on_message:
             self.client.on_message = on_message

@@ -1,19 +1,23 @@
 """
 publisher.py
-notes go hear
+Provides a Tkinter GUI that allows users to post "tweets"
+to specific MQTT topics(hashtags). Each tweet is published
+to a MQTT broker running on localhost. 
 """
 import tkinter as tk
 from tkinter import messagebox
 from mqtt_handler import MQTTHandler
 
 class Publisher:
+    # Initializes the publisher GUI and connects to the MQTT broker
     def __init__(self, root):
         self.root = root
         root.title("MQTT Twitter - Publisher")
-
+        # connection to MQTT
         self.mqtt = MQTTHandler()
         self.mqtt.connect()
 
+        # Tkinter GUI
         tk.Label(root, text = "Username:").grid(row = 0, column = 0, sticky = "e", padx = 5, pady = 5)
         self.username_entry = tk.Entry(root, width = 30)
         self.username_entry.grid(row = 0, column = 1, padx = 5, pady = 5)
@@ -32,6 +36,7 @@ class Publisher:
         # ensures clean disconnect
         root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+    # gets input fields and publishes to MQTT broker
     def publish_tweet(self):
         username = self.username_entry.get().strip()
         tweet = self.tweet_entry.get("1.0", tk.END).strip()
@@ -47,7 +52,7 @@ class Publisher:
             self.mqtt.publish(topic, message)
             print(f"Published: @{username} -> topic: {topic}")
             messagebox.showinfo("Tweet published", f"Tweet sent to {topic}")
-            # Get rid of text in textbox
+            # clear tweet entry box
             self.tweet_entry.delete("1.0", tk.END)
         except Exception as e:
             print(f"Error publishing: {e}")

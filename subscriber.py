@@ -5,7 +5,6 @@ for messages published to specific topics. Incoming tweets
 are displayed in real time on a tkinter GUI.
 """
 import tkinter as tk
-from tkinter import messagebox
 from mqtt_handler import MQTTHandler
 
 class Subscriber:
@@ -49,10 +48,10 @@ class Subscriber:
     def subscribe(self):
         topic = self.hashtag_entry.get().strip()
         if not topic:
-            messagebox.showwarning("Missing Info", "Please enter a hashtag to subscribe to.")
+            print("Missing Info\nPlease enter a hashtag to subscribe to.")
             return
         if topic in self.subscribed_topics:
-            messagebox.showinfo("Already Subscribed", f"You are already subscribed to {topic}")
+            print(f"Already Subscribed\nYou are already subscribed to {topic}")
             return
         
         self.mqtt.subscribe(topic)
@@ -62,10 +61,10 @@ class Subscriber:
     def unsubscribe(self):
         topic = self.hashtag_entry.get().strip()
         if not topic:
-            messagebox.showwarning("Missing Info", "Please enter a hashtag to subscribe to.")
+            print("Missing Info\nPlease enter a hashtag to subscribe to.")
             return
         if topic not in self.subscribed_topics:
-            messagebox.showinfo("Not Subscribed", f"You are not subscribed to {topic}")
+            print(f"Not Subscribed\nYou are not subscribed to {topic}")
             return
         
         self.mqtt.unsubscribe(topic)

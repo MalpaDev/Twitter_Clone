@@ -5,7 +5,6 @@ to specific MQTT topics(hashtags). Each tweet is published
 to a MQTT broker running on localhost. 
 """
 import tkinter as tk
-from tkinter import messagebox
 from mqtt_handler import MQTTHandler
 
 class Publisher:
@@ -43,7 +42,7 @@ class Publisher:
         topic = self.hashtag_entry.get().strip()
 
         if not username or not tweet or not topic:
-            messagebox.showwarning("Missing Info", "Please fill out all fields.")
+            print("Missing Info\nPlease fill out all fields.")
             return
         
         message = f"{username}: {tweet}"
@@ -51,12 +50,10 @@ class Publisher:
         try:
             self.mqtt.publish(topic, message)
             print(f"Published: @{username} -> topic: {topic}")
-            messagebox.showinfo("Tweet published", f"Tweet sent to {topic}")
             # clear tweet entry box
             self.tweet_entry.delete("1.0", tk.END)
         except Exception as e:
             print(f"Error publishing: {e}")
-            messagebox.showerror("Error", f"Failed to publish tweet.\n{e}")
 
     def on_close(self):
         self.mqtt.disconnect()
